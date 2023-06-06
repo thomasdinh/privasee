@@ -1,7 +1,14 @@
 import socket
+import nmap3
 from macarna import mac_lookup
-from ssdpy import SSDPClient
+#from ssdpy import SSDPClient
 import scapy.all as scapy
+import upnpy
+from netdisco.discovery import NetworkDiscovery
+import subprocess
+import os
+from datetime import datetime
+import configparser
 
 #---Get own IP adresss for Networking-------------------
 
@@ -43,16 +50,15 @@ for device in devices:
     print(f"IP: {device['ip']}, MAC: {device['mac']}, CORP: {device_type}")
 
 print(f'--------Test-----NMAP3------')
-'''scanner = nm2.NmapScanner()
-result = scanner.scan('localhost')
-print(result)'''
-print(f'--------Test-----SSDPy------')
+nmap = nmap3.Nmap()
+results = nmap.scan_top_ports(ip_address)
+'''print(f'--------Test-----SSDPy------')
 client = SSDPClient()
 devices = client.m_search("ssdp:all")
 for device in devices:
-    print(device.get("usn"))
+    print(device.get("usn"))'''
 
-print(f'--------Test---SSDP with socket------')
+'''print(f'--------Test---SSDP with socket------')
 # Define the SSDP multicast address and port
 SSDP_IP = '239.255.255.250'
 SSDP_PORT = 1900
@@ -94,5 +100,35 @@ while True:
         break
 
 # Close the socket
-sock.close()
+sock.close()'''
+#https://www.electricmonk.nl/log/2016/07/05/exploring-upnp-with-python/
+print(f'--------Test-----UPNP------')
+upnp = upnpy.UPnP()
+devices = upnp.discover()
+#device = devices[0]
+#device_service= device.get_services()
+print(devices)
+
+print(f'--------Test-----NetDisco------')
+
+netdis = NetworkDiscovery()
+netdis.scan()
+
+for dev in netdis.discover():
+    print(dev)
+
+netdis.stop()
+#https://zerotomastery.io/cheatsheets/nmap-cheat-sheet/
+print(f'--------Test-----NMAP3------')
+def run_nmap_command(command):
+    try:
+        output = subprocess.check_output(command, shell=True, universal_newlines=True)
+        return output
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing command: {e}")
+
+#nmap_command = f'nmap -sV --script=broadcast-upnp-info -T4 {target_ip}'
+#result = run_nmap_command(nmap_command)
+print(result)
+
 
